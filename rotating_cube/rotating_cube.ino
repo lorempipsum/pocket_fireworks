@@ -12,16 +12,21 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 int frame_delay = 70;
 
 // Cube side length
-int a = 15;
+int a = 16;
 // length from centre of cube to rotation side
-int r = 15;
+int r = 20;
 int x0 = display.width() / 2;
 int y0 = display.height() / 2 - a/2;
+int yCenter = y0;
 int x, y;
 float alpha = 0;
+float bobAlpha = 0;
+
+int BOB_AMOUNT = 4;
 
 
 void setup() {
+  Serial.begin(9600);
 
 
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
@@ -49,7 +54,10 @@ void loop() {
 void drawCube() {
   display.clearDisplay();
 
-  alpha = alpha + 0.1;
+  alpha = alpha + 0.1`;
+  bobAlpha = bobAlpha + 0.2;
+  
+  y0 = yCenter + BOB_AMOUNT*(cos(bobAlpha));
 
   drawCorner(0, alpha);
   drawCorner(1.57, alpha);
@@ -60,6 +68,7 @@ void drawCube() {
 
 void drawCorner(float phase, float alpha) {
   int x1,y1,x2,y2;
+
   x = floor(x0 + r * sin(alpha + phase));
   y = floor(y0 - r * cos(alpha + phase));
   x1 = floor(x0 + r * sin(alpha + phase + 1.57));
