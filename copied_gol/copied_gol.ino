@@ -26,7 +26,7 @@
 #include <EEPROM.h> // To store on EEPROM Memory
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 32 // OLED display height, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
@@ -54,9 +54,9 @@ char pattern_init[] =
 .........*!";
 
 int GOL_HEIGHT = 16;
-int GOL_WIDTH = 32;
+int GOL_WIDTH = 16;
 
-bool WORLD[16][32]; // Creation of the wordl
+bool WORLD[16][16]; // Creation of the wordl
 int step_GOL; //used to know the generation
 
 //////////////////////////
@@ -95,15 +95,8 @@ void setup() {
   delay(2000);
   display.clearDisplay();
   
-  //Randomly initialazing the world for the first step
-  randomSeed(analogRead(5));
-  for (byte i = 0; i < 16; i++) {
-    for (byte j = 0; j < 32; j++) {
-      WORLD[i][j] = random(0, 2);
-    }
-  }
 
-  //init_WORLD(); // Uncomment if you want to init with a specific pattern
+  init_WORLD(); // Uncomment if you want to init with a specific pattern
 
   step_GOL = 0;
   print_WORLD(); //Display the first generation
@@ -116,11 +109,13 @@ void setup() {
 //    LOOP FUNCTION     //
 //////////////////////////
 void loop() {
+  display.drawLine(32, 0, 32, display.height(), SSD1306_WHITE);
+  display.drawLine(96, 0, 96, display.height(), SSD1306_WHITE);
   if (step_GOL == 60) { // This if reboot the world after 60 generation to avoid static world
     step_GOL = 0;
     randomSeed(analogRead(5));
     for (byte i = 0; i < 16; i++) {
-      for (byte j = 0; j < 32; j++) {
+      for (byte j = 0; j < 16; j++) {
         WORLD[i][j] = random(0, 2);
       }
     }
@@ -129,11 +124,11 @@ void loop() {
   //The buffer state is written on the EEPROM Memory
 
   for (byte i = 0; i < 16; i++) {
-    for (byte j = 0; j < 32; j++) {
+    for (byte j = 0; j < 16; j++) {
 
-      if (i == 0 || i == 15 || j == 0 || j == 31) // I choose to keep the border at 0
+      if (i == 0 || i == 15 || j == 0 || j == 15) // I choose to keep the border at 0
       {
-        EEPROM.write(i * 31 + j , 0);
+        EEPROM.write(i * 15 + j , 0);
       }
       else {
         byte num_alive = WORLD[i - 1][j - 1] + WORLD[i - 1][j] + WORLD[i - 1][j + 1] + WORLD[i][j - 1] + WORLD[i][j + 1] + WORLD[i + 1][j - 1] + WORLD[i + 1][j] + WORLD[i + 1][j + 1];
@@ -141,15 +136,15 @@ void loop() {
 
         //RULE#1 if you are surrounded by 3 cells --> you live
         if (num_alive == 3) {
-          EEPROM.write(i * 31 + j , 1);
+          EEPROM.write(i * 15 + j , 1);
         }
         //RULE#2 if you are surrounded by 2 cells --> you stay in your state
         else if (num_alive == 2) {
-          EEPROM.write(i * 31 + j , state);
+          EEPROM.write(i * 15 + j , state);
         }
         //RULE#3 otherwise you die from overpopulation or subpopulation
         else {
-          EEPROM.write(i * 31 + j , 0);
+          EEPROM.write(i * 15 + j , 0);
         }
       }
     }
@@ -157,8 +152,8 @@ void loop() {
 
   //Updating the World
   for (byte i = 0; i < 16; i++) {
-    for (byte j = 0; j < 32; j++) {
-      WORLD[i][j] = EEPROM.read(i * 31 + j);
+    for (byte j = 0; j < 16; j++) {
+      WORLD[i][j] = EEPROM.read(i * 15 + j);
     }
   }
 
@@ -182,10 +177,10 @@ void loop() {
 void print_WORLD()
 {
   int x,y;
-  for (byte j = 0; j < 32; j++) {
+  for (byte j = 0; j < 16; j++) {
     for (byte i = 0; i < 16; i++) {
       if (WORLD[i][j] > 0) {
-        x = 4*j;
+        x = 4*j+16;
         y = 2*i;
         // display.drawPixel(x, y, SSD1306_WHITE);
         display.fillRect(x, y, 4, 2, SSD1306_WHITE);
@@ -202,7 +197,7 @@ void print_WORLD_SERIAL()
   clearscreen();
   Serial.print("Step = "); Serial.println(step_GOL);
   for (int i = 0; i < 16; i++) {
-    for (int j = 0; j < 32; j++) {
+    for (int j = 0; j < 16; j++) {
       if (WORLD[i][j] == 0) {
         Serial.print(".");
         Serial.print(" ");
@@ -232,8 +227,8 @@ void clearscreen() {
 
 void init_WORLD() {
   int k = 0;
-  int row = 0;
-  int column = 0;
+  int row = 2;
+  int column = 1;
   while (pattern_init[k] != '!') {
     if (pattern_init[k] == ',') {
       row++;
