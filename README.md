@@ -39,6 +39,3 @@ Connect the OLED display to the Arduino board using I2C.
 Upload the sketch to your Arduino board.
 
 The selected animation will run on the OLED display.
-
-## License
-This project is released under the BSD license. Please refer to the license.txt file for more information.
