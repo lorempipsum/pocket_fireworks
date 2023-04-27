@@ -3,13 +3,18 @@ Pocket Fireworks is a set of animations for monochrome OLED displays based on SS
 
 ## Animations
 Gif Displayer (gif_displayer.ino) - Displays a small bitmap image.
+
 Gravity Worm (gravity_worm.ino) - Simulates "snowflakes" affected by gravity, creating a worm-like animation.
+
 Rotating Cube (rotating_cube.ino) - Displays a 3D cube rotating around its center.
 
 ## Requirements
 Arduino board
+
 Monochrome OLED display (128x32 or 128x64 pixels) based on SSD1306 drivers
+
 Arduino IDE
+
 ### Libraries
 Install the following libraries in your Arduino IDE:
 
